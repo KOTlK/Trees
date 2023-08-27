@@ -1,0 +1,16 @@
+{
+    "name": "com.kotlk.trees.examples",
+    "rootNamespace": "",
+    "references": [
+        "GUID:9e3e659bfeebc5f488f98347578357c7"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
