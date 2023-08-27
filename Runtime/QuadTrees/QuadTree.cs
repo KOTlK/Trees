@@ -1,4 +1,5 @@
-﻿using Trees.Runtime.QuadTrees.View;
+﻿using System.Collections.Generic;
+using Trees.Runtime.QuadTrees.View;
 using UnityEngine;
 
 namespace Trees.Runtime.QuadTrees
@@ -46,19 +47,48 @@ namespace Trees.Runtime.QuadTrees
             if (_divided == false)
                 Divide();
 
-            if(_child[NW].Insert(point, item))
-                return true;
-            
-            if(_child[NE].Insert(point, item))
-                return true;
-            
-            if(_child[SW].Insert(point, item))
-                return true;
-            
-            if(_child[SE].Insert(point, item))
+            if (_child[NW].Insert(point, item))
                 return true;
 
+            if(_child[NE].Insert(point, item))
+                return true;
+
+            if(_child[SW].Insert(point, item))
+                return true;
+
+            if(_child[SE].Insert(point, item))
+                return true;
+            
+
             return false;
+        }
+
+        public IEnumerable<(Vector2, T)> Query(Rectangle range)
+        {
+            var total = new List<(Vector2, T)>();
+
+            if (_rectangle.Intersect(range) == false)
+            {
+                return total;
+            }
+
+            for (var i = 0; i < _positions.Length; i++)
+            {
+                if (range.Contains(_positions[i]))
+                {
+                    total.Add((_positions[i], _items[i]));
+                }
+            }
+
+            if (_divided == false)
+                return total;
+
+            foreach (var child in _child)
+            {
+                total.AddRange(child.Query(range));
+            }
+            
+            return total;
         }
 
         public void Divide()
@@ -90,7 +120,6 @@ namespace Trees.Runtime.QuadTrees
             
             if (_divided == false)
             {
-                
                 return;
             }
 

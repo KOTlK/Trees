@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Trees.Runtime.QuadTrees
 {
@@ -18,36 +19,43 @@ namespace Trees.Runtime.QuadTrees
         public bool Contains(Vector2 point)
         {
             var halfExtents = HalfExtents;
-            
-            if (point.x > Position.x + halfExtents.x)
-            {
-                return false;
-            }
 
-            if (point.y > Position.x + halfExtents.x)
-            {
+            if (Position.x + halfExtents.x < point.x)
                 return false;
-            }
 
-            if (point.x < Position.x - halfExtents.x)
-            {
+            if (Position.y + halfExtents.y < point.y)
                 return false;
-            }
 
-            if (point.y < Position.y - halfExtents.y)
-            {
+            if (Position.x - halfExtents.x > point.x)
                 return false;
-            }
+
+            if (Position.y - halfExtents.y > point.y)
+                return false;
 
             return true;
         }
         
         public bool Intersect(Rectangle rectangle)
         {
-            return Position.x + Size.x >= rectangle.Position.x &&
-                   rectangle.Position.x + rectangle.Size.x >= Position.x &&
-                   Position.y + Size.y >= rectangle.Position.y &&
-                   rectangle.Position.y + rectangle.Size.y >= Position.y;
+            var half = HalfExtents;
+            var targetHalf = rectangle.HalfExtents;
+            
+            var dx = rectangle.Position.x - Position.x;
+            var px = (targetHalf.x + half.x) - Math.Abs(dx);
+            if (px <= 0) 
+            {
+                return false;
+            }
+
+            var dy = rectangle.Position.y - Position.y;
+            var py = (targetHalf.y + half.y) - Math.Abs(dy);
+            if (py <= 0) 
+            {
+                return false;
+            }
+
+
+            return true;
         }
     }
 }
