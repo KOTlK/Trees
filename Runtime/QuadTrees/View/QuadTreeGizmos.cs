@@ -1,74 +1,73 @@
 ﻿using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 namespace Trees.Runtime.QuadTrees.View
 {
     public abstract class QuadTreeGizmos<T> : MonoBehaviour, IQuadTreeView<T>
     {
-        [SerializeField] private Color _boundsColor = Color.green;
-        [SerializeField] private Color _pointColor = Color.red;
-        [SerializeField] private Color _textColor = Color.yellow;
-        [SerializeField] private float _pointSize = 0.5f;
-        [SerializeField] private float _textOffset = 0.5f;
-        
-        private readonly Queue<Rectangle> _boundsQueue = new();
-        private readonly Queue<Vector2> _pointsQueue = new();
-        private readonly Queue<T> _items = new();
+        [SerializeField] protected Color BoundsColor = Color.green;
+        [SerializeField] protected Color PointColor = Color.red;
+        [SerializeField] protected float PointSize = 0.5f;
 
-        public void DrawBounds(Rectangle rectangle)
+        protected readonly Queue<Rectangle> BoundsQueue = new();
+        protected readonly Queue<Vector3> PointsQueue = new();
+        protected readonly Queue<T> ItemsQueue = new();
+
+        public virtual void DrawBounds(Rectangle rectangle)
         {
-            _boundsQueue.Enqueue(rectangle);
+            BoundsQueue.Enqueue(rectangle);
         }
 
-        public void DrawPoints(IEnumerable<Vector2> points)
+        public virtual void DrawPoints(IEnumerable<Vector3> points)
         {
             foreach (var point in points)
             {
-                _pointsQueue.Enqueue(point);
+                PointsQueue.Enqueue(point);
             }
         }
 
-        public void DrawItems(IEnumerable<T> items)
+        public virtual void DrawItems(IEnumerable<T> items)
         {
             foreach (var item in items)
             {
-                _items.Enqueue(item);
+                ItemsQueue.Enqueue(item);
             }
         }
 
-        private void OnDrawGizmosSelected()
+        protected void DisplayBounds()
         {
-            Gizmos.color = _boundsColor;
+            Gizmos.color = BoundsColor;
             
-            while (_boundsQueue.Count > 0)
+            while (BoundsQueue.Count > 0)
             {
-                var bounds = _boundsQueue.Dequeue();
+                var bounds = BoundsQueue.Dequeue();
 
                 var halfExtents = bounds.HalfExtents;
 
-                var point0 = bounds.Position + new Vector2(-halfExtents.x, halfExtents.y);
-                var point1 = bounds.Position + new Vector2(halfExtents.x, halfExtents.y);
-                var point2 = bounds.Position + new Vector2(halfExtents.x, -halfExtents.y);
-                var point3 = bounds.Position + new Vector2(-halfExtents.x, -halfExtents.y);
-
+                var point0 = bounds.Position + new Vector3(-halfExtents.x, halfExtents.y);
+                var point1 = bounds.Position + new Vector3(halfExtents.x, halfExtents.y);
+                var point2 = bounds.Position + new Vector3(halfExtents.x, -halfExtents.y);
+                var point3 = bounds.Position + new Vector3(-halfExtents.x, -halfExtents.y);
+                
                 Gizmos.DrawLine(point0, point1);
                 Gizmos.DrawLine(point1, point2);
                 Gizmos.DrawLine(point2, point3);
                 Gizmos.DrawLine(point3, point0);
             }
+        }
 
-            Gizmos.color = _pointColor;
-            Handles.color = _textColor;
+        protected void DisplayPoints()
+        {
+            Gizmos.color = PointColor;
             
-            while (_pointsQueue.Count > 0)
+            while (PointsQueue.Count > 0)
             {
-                var point = _pointsQueue.Dequeue();
-                var item = _items.Dequeue();
+                var point = PointsQueue.Dequeue();
 
-                Gizmos.DrawSphere(point, _pointSize);
-                Handles.Label(point + new Vector2(0, _textOffset), item.ToString());
+                Gizmos.DrawSphere(point, PointSize);
             }
         }
+
+        protected abstract void OnDrawGizmosSelected();
     }
 }

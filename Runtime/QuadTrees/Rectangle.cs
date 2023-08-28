@@ -5,18 +5,18 @@ namespace Trees.Runtime.QuadTrees
 {
     public struct Rectangle
     {
-        public Vector2 Position;
-        public Vector2 Size;
+        public Vector3 Position;
+        public Vector3 Size;
 
-        public Rectangle(Vector2 position, Vector2 size)
+        public Rectangle(Vector3 position, Vector3 size)
         {
             Position = position;
             Size = size;
         }
 
-        public Vector2 HalfExtents => Size * 0.5f;
+        public Vector3 HalfExtents => Size * 0.5f;
 
-        public bool Contains(Vector2 point)
+        public bool Contains(Vector3 point)
         {
             var halfExtents = HalfExtents;
 

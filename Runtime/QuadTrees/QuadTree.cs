@@ -7,7 +7,7 @@ namespace Trees.Runtime.QuadTrees
     public struct QuadTree<T>
     {
         private readonly int _capacity;
-        private readonly Vector2[] _positions;
+        private readonly Vector3[] _positions;
         private readonly QuadTree<T>[] _child;
         private readonly T[] _items;
 
@@ -24,14 +24,14 @@ namespace Trees.Runtime.QuadTrees
         {
             _capacity = capacity;
             _rectangle = rectangle;
-            _positions = new Vector2[_capacity];
+            _positions = new Vector3[_capacity];
             _count = 0;
             _child = new QuadTree<T>[4];
             _items = new T[4];
             _divided = false;
         }
 
-        public bool Insert(Vector2 point, T item)
+        public bool Insert(Vector3 point, T item)
         {
             if (_rectangle.Contains(point) == false)
                 return false;
