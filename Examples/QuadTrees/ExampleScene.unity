@@ -177,6 +177,9 @@ MonoBehaviour:
   _view: {fileID: 634778651}
   _count: 0
   _areaSize: {x: 20, y: 20, z: 0}
+  _areaType: 0
+  _circleAreaRadius: 10
+  _circleSegmentsCount: 30
   _areaRenderer: {fileID: 634778650}
   _displayDebug: 1
 --- !u!120 &634778650

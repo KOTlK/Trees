@@ -63,14 +63,12 @@ namespace Trees.Runtime.QuadTrees
             return false;
         }
 
-        public IEnumerable<(Vector2, T)> Query(Rectangle range)
+        public IEnumerable<(Vector3, T)> Query(Rectangle range)
         {
-            var total = new List<(Vector2, T)>();
+            var total = new List<(Vector3, T)>();
 
             if (_rectangle.Intersect(range) == false)
-            {
                 return total;
-            }
 
             for (var i = 0; i < _positions.Length; i++)
             {
@@ -88,6 +86,32 @@ namespace Trees.Runtime.QuadTrees
                 total.AddRange(child.Query(range));
             }
             
+            return total;
+        }
+
+        public IEnumerable<(Vector3, T)> Query(Circle range)
+        {
+            var total = new List<(Vector3, T)>();
+
+            if (_rectangle.Intersect(range) == false)
+                return total;
+
+            for (var i = 0; i < _positions.Length; i++)
+            {
+                if (range.Contains(_positions[i]))
+                {
+                    total.Add((_positions[i], _items[i]));
+                }
+            }
+
+            if (_divided == false)
+                return total;
+
+            foreach (var child in _child)
+            {
+                total.AddRange(child.Query(range));
+            }
+
             return total;
         }
 

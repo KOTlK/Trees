@@ -57,5 +57,21 @@ namespace Trees.Runtime.QuadTrees
 
             return true;
         }
+
+        public bool Intersect(Circle circle)
+        {
+            var difference = circle.Position - Position;
+            var halfExtents = HalfExtents;
+            var clamped = Clamp(difference, -halfExtents, halfExtents);
+            var closest = Position + clamped;
+            difference = closest - circle.Position;
+
+            return difference.sqrMagnitude <= circle.Radius * circle.Radius;
+        }
+        
+        private static Vector3 Clamp(Vector3 vector, Vector3 min, Vector3 max)
+        {
+            return new Vector3(Mathf.Clamp(vector.x, min.x, max.x), Mathf.Clamp(vector.y, min.y, max.y));
+        }
     }
 }

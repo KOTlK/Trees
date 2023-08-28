@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using Trees.Runtime.QuadTrees;
 using Unity.Profiling;
@@ -10,12 +11,15 @@ namespace Trees.Examples.QuadTrees
     {
         [SerializeField] private TMP_Text _debugInfo;
         [SerializeField] private Vector3 _startPosition = Vector3.zero;
-        [SerializeField] private Vector3 _size = new Vector2(100, 100);
+        [SerializeField] private Vector3 _size = new Vector3(100, 100);
         [SerializeField] private int _pointsAmount = 100;
         [SerializeField] private float _pointsSpeed = 5f;
         [SerializeField] private PointView _view;
         [SerializeField] private int _count;
         [SerializeField] private Vector3 _areaSize = new Vector3(10, 10);
+        [SerializeField] private AreaType _areaType = AreaType.Rectangle;
+        [SerializeField] private float _circleAreaRadius = 10f;
+        [SerializeField] private int _circleSegmentsCount = 30;
         [SerializeField] private LineRenderer _areaRenderer;
         [SerializeField] private bool _displayDebug = true;
 
@@ -41,37 +45,66 @@ namespace Trees.Examples.QuadTrees
                 InsertPoints(_pointsAmount);
             }
 
-            var area = new Rectangle(_areaPosition, _areaSize);
-            
-            //Draw area
-            var halfExtents = area.HalfExtents;
+            var rectangleArea = new Rectangle(_areaPosition, _areaSize);
+            var circleArea = new Circle(_areaPosition, _circleAreaRadius);
 
-            var point0 = area.Position + new Vector3(-halfExtents.x, halfExtents.y);
-            var point1 = area.Position + new Vector3(halfExtents.x, halfExtents.y);
-            var point2 = area.Position + new Vector3(halfExtents.x, -halfExtents.y);
-            var point3 = area.Position + new Vector3(-halfExtents.x, -halfExtents.y);
-
-            _areaRenderer.positionCount = 5;
-            _areaRenderer.SetPositions(new Vector3[]
+            switch (_areaType)
             {
-                point0,
-                point1,
-                point2,
-                point3,
-                point0
-            });
-
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                mousePosition.z = 0;
+                case AreaType.Circle:
+                    var angle = 0f;
+                    var anglePerSegment = 180f / _circleSegmentsCount;
+                    _areaRenderer.positionCount = _circleSegmentsCount;
+                    for (var i = 0; i < _circleSegmentsCount; i++)
+                    {
+                        _areaRenderer.SetPosition(i, _areaPosition + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle)) * circleArea.Radius);
+                        angle += anglePerSegment;
+                    }
+                    
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        mousePosition.z = 0;
                 
-                if (area.Contains(mousePosition))
-                {
-                    _movingArea = true;
-                }
-            }
+                        if (circleArea.Contains(mousePosition))
+                        {
+                            _movingArea = true;
+                        }
+                    }
+                    break;
+                case AreaType.Rectangle:
+                    //Draw area
+                    var halfExtents = rectangleArea.HalfExtents;
 
+                    var point0 = rectangleArea.Position + new Vector3(-halfExtents.x, halfExtents.y);
+                    var point1 = rectangleArea.Position + new Vector3(halfExtents.x, halfExtents.y);
+                    var point2 = rectangleArea.Position + new Vector3(halfExtents.x, -halfExtents.y);
+                    var point3 = rectangleArea.Position + new Vector3(-halfExtents.x, -halfExtents.y);
+
+                    _areaRenderer.positionCount = 5;
+                    _areaRenderer.SetPositions(new Vector3[]
+                    {
+                        point0,
+                        point1,
+                        point2,
+                        point3,
+                        point0
+                    });
+
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        var mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        mousePosition.z = 0;
+                
+                        if (rectangleArea.Contains(mousePosition))
+                        {
+                            _movingArea = true;
+                        }
+                    }
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             if (Input.GetKeyUp(KeyCode.Mouse0))
             {
                 _movingArea = false;
@@ -116,12 +149,24 @@ namespace Trees.Examples.QuadTrees
             QuadTreeRebuild.End();
 
             QuadTreeQuery.Begin();
-            var pointsInArea = _quadTree.Query(area);
+            IEnumerable<(Vector3, Point)> pointsInArea = new (Vector3, Point)[1];
+            switch (_areaType)
+            {
+                case AreaType.Circle:
+                    pointsInArea = _quadTree.Query(circleArea);
+                    break;
+                case AreaType.Rectangle:
+                    pointsInArea = _quadTree.Query(rectangleArea);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             QuadTreeQuery.End();
 
             foreach (var (point, _) in pointsInArea)
             {
-                Debug.DrawLine(area.Position, point);
+                Debug.DrawLine(_areaPosition, point);
             }
             
             if(_displayDebug)
