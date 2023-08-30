@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Trees.Runtime.QuadTrees
+namespace Trees.Runtime
 {
     public struct TreeElement<T>
     {

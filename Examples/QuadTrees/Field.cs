@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TMPro;
+using Trees.Runtime;
 using Trees.Runtime.QuadTrees;
 using Unity.Profiling;
 using UnityEngine;

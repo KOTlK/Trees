@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
+using Trees.Runtime;
 using Trees.Runtime.QuadTrees;
 using UnityEngine;
 
