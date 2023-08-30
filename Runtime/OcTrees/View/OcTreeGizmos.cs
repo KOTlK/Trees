@@ -18,20 +18,14 @@ namespace Trees.Runtime.OcTrees.View
             BoundsQueue.Enqueue(aabb);
         }
 
-        public virtual void DrawPoints(IEnumerable<Vector3> points)
+        public virtual void DrawPoint(Vector3 point)
         {
-            foreach (var point in points)
-            {
-                PointsQueue.Enqueue(point);
-            }
+            PointsQueue.Enqueue(point);
         }
 
-        public virtual void DrawValues(IEnumerable<T> items)
+        public virtual void DrawValue(T item)
         {
-            foreach (var item in items)
-            {
-                ItemsQueue.Enqueue(item);
-            }
+            ItemsQueue.Enqueue(item);
         }
 
         protected void DisplayBounds()

@@ -17,7 +17,7 @@ namespace Trees.Runtime.QuadTrees
         {
             var direction = point - Position;
 
-            return direction.sqrMagnitude < Radius * Radius;
+            return direction.sqrMagnitude <= Radius * Radius;
         }
     }
 }

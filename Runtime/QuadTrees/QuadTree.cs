@@ -139,9 +139,12 @@ namespace Trees.Runtime.QuadTrees
         public void Visualize(IQuadTreeView<T> view)
         {
             view.DrawBounds(_rectangle);
-            view.DrawPoints(_positions);
-            view.DrawItems(_items);
-            
+            for(var i = 0; i < _count; i++)
+            {
+                view.DrawPoint(_positions[i]);
+                view.DrawItem(_items[i]);
+            }
+
             if (_divided == false)
             {
                 return;

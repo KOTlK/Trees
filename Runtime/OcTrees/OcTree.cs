@@ -188,8 +188,12 @@ namespace Trees.Runtime.OcTrees
         public void Visualize(IOcTreeView<T> view)
         {
             view.DrawBounds(_aabb);
-            view.DrawPoints(_points);
-            view.DrawValues(_values);
+
+            for (var i = 0; i < _count; i++)
+            {
+                view.DrawPoint(_points[i]);
+                view.DrawValue(_values[i]);
+            }
 
             if (_divided == false)
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Trees.Runtime.OcTrees
 {
@@ -16,7 +15,7 @@ namespace Trees.Runtime.OcTrees
 
         public bool Contains(Vector3 point)
         {
-            return (point - Position).sqrMagnitude < Radius * Radius;
+            return (point - Position).sqrMagnitude <= Radius * Radius;
         }
 
         public bool Intersect(Sphere sphere)
