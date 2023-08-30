@@ -67,7 +67,7 @@ namespace Trees.Runtime.QuadTrees
             if (_rectangle.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _elements.Length; i++)
+            for (var i = 0; i < _count; i++)
             {
                 if (range.Contains(_elements[i].Position))
                 {
@@ -93,7 +93,7 @@ namespace Trees.Runtime.QuadTrees
             if (_rectangle.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _elements.Length; i++)
+            for (var i = 0; i < _count; i++)
             {
                 if (range.Contains(_elements[i].Position))
                 {

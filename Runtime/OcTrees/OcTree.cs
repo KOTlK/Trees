@@ -7,8 +7,7 @@ namespace Trees.Runtime.OcTrees
     public struct OcTree<T>
     {
         private readonly OcTree<T>[] _child;
-        private readonly T[] _values;
-        private readonly Vector3[] _points;
+        private readonly TreeElement<T>[] _elements;
         private readonly int _capacity;
         
         private AABB _aabb;
@@ -25,28 +24,26 @@ namespace Trees.Runtime.OcTrees
         private const int BDL = 6;
         private const int BDR = 7;
 
-        public OcTree(int capacity, AABB aabb)
+        public OcTree(AABB aabb, int capacity = 8)
         {
             _capacity = capacity;
             _aabb = aabb;
             _child = new OcTree<T>[8];
-            _values = new T[capacity];
-            _points = new Vector3[capacity];
+            _elements = new TreeElement<T>[capacity];
             _divided = false;
             _count = 0;
         }
 
-        public bool Insert(Vector3 point, T value)
+        public bool Insert(TreeElement<T> element)
         {
-            if (_aabb.Contains(point) == false)
+            if (_aabb.Contains(element.Position) == false)
             {
                 return false;
             }
             
             if (_count < _capacity)
             {
-                _points[_count] = point;
-                _values[_count] = value;
+                _elements[_count] = element;
                 _count++;
                 return true;
             }
@@ -56,38 +53,38 @@ namespace Trees.Runtime.OcTrees
                 Divide();
             }
 
-            if (_child[FUL].Insert(point, value))
+            if (_child[FUL].Insert(element))
                 return true;
-            if (_child[FUR].Insert(point, value))
+            if (_child[FUR].Insert(element))
                 return true;
-            if (_child[FDL].Insert(point, value))
+            if (_child[FDL].Insert(element))
                 return true;
-            if (_child[FDR].Insert(point, value))
+            if (_child[FDR].Insert(element))
                 return true;
-            if (_child[BUL].Insert(point, value))
+            if (_child[BUL].Insert(element))
                 return true;
-            if (_child[BUR].Insert(point, value))
+            if (_child[BUR].Insert(element))
                 return true;
-            if (_child[BDL].Insert(point, value))
+            if (_child[BDL].Insert(element))
                 return true;
-            if (_child[BDR].Insert(point, value))
+            if (_child[BDR].Insert(element))
                 return true;
 
             return false;
         }
 
-        public IEnumerable<(Vector3, T)> Query(AABB range)
+        public IEnumerable<TreeElement<T>> Query(AABB range)
         {
-            var total = new List<(Vector3, T)>();
+            var total = new List<TreeElement<T>>();
 
             if (_aabb.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _points.Length; i++)
+            for (var i = 0; i < _count; i++)
             {
-                if (range.Contains(_points[i]))
+                if (range.Contains(_elements[i].Position))
                 {
-                    total.Add((_points[i], _values[i]));
+                    total.Add(_elements[i]);
                 }
             }
 
@@ -102,18 +99,18 @@ namespace Trees.Runtime.OcTrees
             return total;
         }
 
-        public IEnumerable<(Vector3, T)> Query(Sphere range)
+        public IEnumerable<TreeElement<T>> Query(Sphere range)
         {
-            var total = new List<(Vector3, T)>();
+            var total = new List<TreeElement<T>>();
 
             if (_aabb.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _points.Length; i++)
+            for (var i = 0; i < _count; i++)
             {
-                if (range.Contains(_points[i]))
+                if (range.Contains(_elements[i].Position))
                 {
-                    total.Add((_points[i], _values[i]));
+                    total.Add(_elements[i]);
                 }
             }
 
@@ -133,54 +130,54 @@ namespace Trees.Runtime.OcTrees
             if (_divided)
                 return;
 
-            _child[FUL] = new OcTree<T>(_capacity, new AABB(
+            _child[FUL] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x - _aabb.Size.x * 0.25f, 
                     _aabb.Position.y + _aabb.Size.y * 0.25f,
                     _aabb.Position.z + _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[FUR] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[FUR] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x + _aabb.Size.x * 0.25f, 
                     _aabb.Position.y + _aabb.Size.y * 0.25f,
                     _aabb.Position.z + _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[FDL] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[FDL] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x - _aabb.Size.x * 0.25f, 
                     _aabb.Position.y - _aabb.Size.y * 0.25f,
                     _aabb.Position.z + _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[FDR] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[FDR] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x + _aabb.Size.x * 0.25f, 
                     _aabb.Position.y - _aabb.Size.y * 0.25f,
                     _aabb.Position.z + _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[BUL] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[BUL] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x - _aabb.Size.x * 0.25f, 
                     _aabb.Position.y + _aabb.Size.y * 0.25f,
                     _aabb.Position.z - _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[BUR] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[BUR] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x + _aabb.Size.x * 0.25f, 
                     _aabb.Position.y + _aabb.Size.y * 0.25f,
                     _aabb.Position.z - _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[BDL] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[BDL] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x - _aabb.Size.x * 0.25f, 
                     _aabb.Position.y - _aabb.Size.y * 0.25f,
                     _aabb.Position.z - _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
-            _child[BDR] = new OcTree<T>(_capacity, new AABB(
+                _aabb.Size * 0.5f), _capacity);
+            _child[BDR] = new OcTree<T>(new AABB(
                 new Vector3(
                     _aabb.Position.x + _aabb.Size.x * 0.25f, 
                     _aabb.Position.y - _aabb.Size.y * 0.25f,
                     _aabb.Position.z - _aabb.Size.z * 0.25f),
-                _aabb.Size * 0.5f));
+                _aabb.Size * 0.5f), _capacity);
 
             _divided = true;
         }
@@ -191,8 +188,7 @@ namespace Trees.Runtime.OcTrees
 
             for (var i = 0; i < _count; i++)
             {
-                view.DrawPoint(_points[i]);
-                view.DrawValue(_values[i]);
+                view.DrawElement(_elements[i]);
             }
 
             if (_divided == false)

@@ -1,5 +1,6 @@
 using System;
 using Trees.Examples.QuadTrees;
+using Trees.Runtime;
 using Trees.Runtime.OcTrees;
 using UnityEngine;
 
@@ -25,7 +26,7 @@ namespace Trees.Examples.OcTrees
 
         private void Awake()
         {
-            _ocTree = new OcTree<Point>(8, new AABB(_startPosition, _size));
+            _ocTree = new OcTree<Point>(new AABB(_startPosition, _size));
             InsertPoints(_pointsAmount);
         }
 
@@ -49,11 +50,11 @@ namespace Trees.Examples.OcTrees
                 _points[i].Position += _points[i].Direction * (_pointsSpeed * Time.deltaTime);
             }
             
-            _ocTree = new OcTree<Point>(4, new AABB(_startPosition, _size));
+            _ocTree = new OcTree<Point>(new AABB(_startPosition, _size));
 
             foreach (var point in _points)
             {
-                _ocTree.Insert(point.Position, point);
+                _ocTree.Insert(new TreeElement<Point>(point.Position, point));
             }
 
             var rangePosition = _range.position;
@@ -65,7 +66,7 @@ namespace Trees.Examples.OcTrees
                 case AreaType.Circle:
                     var points = _ocTree.Query(sphereRange);
 
-                    foreach (var (_, point) in points)
+                    foreach (var point in points)
                     {
                         Debug.DrawLine(rangePosition, point.Position, Color.red);
                     }
@@ -73,7 +74,7 @@ namespace Trees.Examples.OcTrees
                 case AreaType.Rectangle:
                     var pointsInRange = _ocTree.Query(aabbRange);
 
-                    foreach (var (_, point) in pointsInRange)
+                    foreach (var point in pointsInRange)
                     {
                         Debug.DrawLine(rangePosition, point.Position, Color.red);
                     }

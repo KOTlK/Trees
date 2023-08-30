@@ -10,22 +10,16 @@ namespace Trees.Runtime.OcTrees.View
         [SerializeField] protected float PointSize = 0.5f;
 
         protected readonly Queue<AABB> BoundsQueue = new();
-        protected readonly Queue<Vector3> PointsQueue = new();
-        protected readonly Queue<T> ItemsQueue = new();
+        protected readonly Queue<TreeElement<T>> ElementsQueue = new ();
 
         public virtual void DrawBounds(AABB aabb)
         {
             BoundsQueue.Enqueue(aabb);
         }
 
-        public virtual void DrawPoint(Vector3 point)
+        public void DrawElement(TreeElement<T> element)
         {
-            PointsQueue.Enqueue(point);
-        }
-
-        public virtual void DrawValue(T item)
-        {
-            ItemsQueue.Enqueue(item);
+            ElementsQueue.Enqueue(element);
         }
 
         protected void DisplayBounds()
@@ -66,11 +60,11 @@ namespace Trees.Runtime.OcTrees.View
         {
             Gizmos.color = PointColor;
             
-            while (PointsQueue.Count > 0)
+            while (ElementsQueue.Count > 0)
             {
-                var point = PointsQueue.Dequeue();
+                var point = ElementsQueue.Dequeue();
 
-                Gizmos.DrawSphere(point, PointSize);
+                Gizmos.DrawSphere(point.Position, PointSize);
             }
         }
 
