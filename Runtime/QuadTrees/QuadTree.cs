@@ -8,9 +8,7 @@ namespace Trees.Runtime.QuadTrees
     {
         private readonly int _capacity;
         private readonly TreeElement<T>[] _elements;
-        //private readonly Vector3[] _positions;
         private readonly QuadTree<T>[] _child;
-        //private readonly T[] _items;
 
         private Rectangle _rectangle;
         private bool _divided;
@@ -25,10 +23,8 @@ namespace Trees.Runtime.QuadTrees
         {
             _capacity = capacity;
             _rectangle = rectangle;
-            //_positions = new Vector3[_capacity];
             _count = 0;
             _child = new QuadTree<T>[4];
-            //_items = new T[4];
             _divided = false;
             _elements = new TreeElement<T>[_capacity];
         }
@@ -41,8 +37,6 @@ namespace Trees.Runtime.QuadTrees
             if (_count < _capacity)
             {
                 _elements[_count] = element;
-                //_positions[_count] = point;
-                //_items[_count] = item;
                 _count++;
                 return true;
             }
