@@ -36,7 +36,7 @@ namespace Trees.Runtime.QuadTrees
             if (_rectangle.Contains(point) == false)
                 return false;
 
-            if (_count < _capacity - 1)
+            if (_count < _capacity)
             {
                 _positions[_count] = point;
                 _items[_count] = item;
@@ -121,16 +121,16 @@ namespace Trees.Runtime.QuadTrees
                 return;
 
             _child[NW] = new QuadTree<T>(_capacity, new Rectangle(
-                new Vector2(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
+                new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f));
             _child[NE] = new QuadTree<T>(_capacity, new Rectangle(
-                new Vector2(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
+                new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f));
             _child[SW] = new QuadTree<T>(_capacity, new Rectangle(
-                new Vector2(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
+                new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f));
             _child[SE] = new QuadTree<T>(_capacity, new Rectangle(
-                new Vector2(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
+                new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f));
             
             _divided = true;
