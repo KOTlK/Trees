@@ -2,10 +2,9 @@
 
 namespace Trees.Runtime.QuadTrees.View
 {
-    public interface IQuadTreeView<in T>
+    public interface IQuadTreeView<T>
     {
         void DrawBounds(Rectangle rectangle);
-        void DrawPoint(Vector3 point);
-        void DrawItem(T item);
+        void DrawElement(TreeElement<T> element);
     }
 }

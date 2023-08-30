@@ -10,22 +10,16 @@ namespace Trees.Runtime.QuadTrees.View
         [SerializeField] protected float PointSize = 0.5f;
 
         protected readonly Queue<Rectangle> BoundsQueue = new();
-        protected readonly Queue<Vector3> PointsQueue = new();
-        protected readonly Queue<T> ItemsQueue = new();
+        protected readonly Queue<TreeElement<T>> ElementsQueue = new();
 
         public virtual void DrawBounds(Rectangle rectangle)
         {
             BoundsQueue.Enqueue(rectangle);
         }
 
-        public virtual void DrawPoint(Vector3 point)
+        public void DrawElement(TreeElement<T> element)
         {
-            PointsQueue.Enqueue(point);
-        }
-
-        public virtual void DrawItem(T item)
-        {
-            ItemsQueue.Enqueue(item);
+            ElementsQueue.Enqueue(element);
         }
 
         protected void DisplayBounds()
@@ -54,11 +48,11 @@ namespace Trees.Runtime.QuadTrees.View
         {
             Gizmos.color = PointColor;
             
-            while (PointsQueue.Count > 0)
+            while (ElementsQueue.Count > 0)
             {
-                var point = PointsQueue.Dequeue();
+                var point = ElementsQueue.Dequeue();
 
-                Gizmos.DrawSphere(point, PointSize);
+                Gizmos.DrawSphere(point.Position, PointSize);
             }
         }
 

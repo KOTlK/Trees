@@ -7,9 +7,10 @@ namespace Trees.Runtime.QuadTrees
     public struct QuadTree<T>
     {
         private readonly int _capacity;
-        private readonly Vector3[] _positions;
+        private readonly TreeElement<T>[] _elements;
+        //private readonly Vector3[] _positions;
         private readonly QuadTree<T>[] _child;
-        private readonly T[] _items;
+        //private readonly T[] _items;
 
         private Rectangle _rectangle;
         private bool _divided;
@@ -20,26 +21,28 @@ namespace Trees.Runtime.QuadTrees
         private const int SW = 2;
         private const int SE = 3;
 
-        public QuadTree(int capacity, Rectangle rectangle)
+        public QuadTree(Rectangle rectangle, int capacity = 4)
         {
             _capacity = capacity;
             _rectangle = rectangle;
-            _positions = new Vector3[_capacity];
+            //_positions = new Vector3[_capacity];
             _count = 0;
             _child = new QuadTree<T>[4];
-            _items = new T[4];
+            //_items = new T[4];
             _divided = false;
+            _elements = new TreeElement<T>[_capacity];
         }
 
-        public bool Insert(Vector3 point, T item)
+        public bool Insert(TreeElement<T> element)
         {
-            if (_rectangle.Contains(point) == false)
+            if (_rectangle.Contains(element.Position) == false)
                 return false;
 
             if (_count < _capacity)
             {
-                _positions[_count] = point;
-                _items[_count] = item;
+                _elements[_count] = element;
+                //_positions[_count] = point;
+                //_items[_count] = item;
                 _count++;
                 return true;
             }
@@ -47,34 +50,34 @@ namespace Trees.Runtime.QuadTrees
             if (_divided == false)
                 Divide();
 
-            if (_child[NW].Insert(point, item))
+            if (_child[NW].Insert(element))
                 return true;
 
-            if(_child[NE].Insert(point, item))
+            if(_child[NE].Insert(element))
                 return true;
 
-            if(_child[SW].Insert(point, item))
+            if(_child[SW].Insert(element))
                 return true;
 
-            if(_child[SE].Insert(point, item))
+            if(_child[SE].Insert(element))
                 return true;
             
 
             return false;
         }
 
-        public IEnumerable<(Vector3, T)> Query(Rectangle range)
+        public IEnumerable<TreeElement<T>> Query(Rectangle range)
         {
-            var total = new List<(Vector3, T)>();
+            var total = new List<TreeElement<T>>();
 
             if (_rectangle.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _positions.Length; i++)
+            for (var i = 0; i < _elements.Length; i++)
             {
-                if (range.Contains(_positions[i]))
+                if (range.Contains(_elements[i].Position))
                 {
-                    total.Add((_positions[i], _items[i]));
+                    total.Add(_elements[i]);
                 }
             }
 
@@ -89,18 +92,18 @@ namespace Trees.Runtime.QuadTrees
             return total;
         }
 
-        public IEnumerable<(Vector3, T)> Query(Circle range)
+        public IEnumerable<TreeElement<T>> Query(Circle range)
         {
-            var total = new List<(Vector3, T)>();
+            var total = new List<TreeElement<T>>();
 
             if (_rectangle.Intersect(range) == false)
                 return total;
 
-            for (var i = 0; i < _positions.Length; i++)
+            for (var i = 0; i < _elements.Length; i++)
             {
-                if (range.Contains(_positions[i]))
+                if (range.Contains(_elements[i].Position))
                 {
-                    total.Add((_positions[i], _items[i]));
+                    total.Add(_elements[i]);
                 }
             }
 
@@ -120,18 +123,22 @@ namespace Trees.Runtime.QuadTrees
             if (_divided)
                 return;
 
-            _child[NW] = new QuadTree<T>(_capacity, new Rectangle(
+            _child[NW] = new QuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
-                _rectangle.Size * 0.5f));
-            _child[NE] = new QuadTree<T>(_capacity, new Rectangle(
+                _rectangle.Size * 0.5f),
+                _capacity);
+            _child[NE] = new QuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
-                _rectangle.Size * 0.5f));
-            _child[SW] = new QuadTree<T>(_capacity, new Rectangle(
+                _rectangle.Size * 0.5f),
+                _capacity);
+            _child[SW] = new QuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
-                _rectangle.Size * 0.5f));
-            _child[SE] = new QuadTree<T>(_capacity, new Rectangle(
+                _rectangle.Size * 0.5f),
+                _capacity);
+            _child[SE] = new QuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
-                _rectangle.Size * 0.5f));
+                _rectangle.Size * 0.5f),
+                _capacity);
             
             _divided = true;
         }
@@ -141,8 +148,7 @@ namespace Trees.Runtime.QuadTrees
             view.DrawBounds(_rectangle);
             for(var i = 0; i < _count; i++)
             {
-                view.DrawPoint(_positions[i]);
-                view.DrawItem(_items[i]);
+                view.DrawElement(_elements[i]);
             }
 
             if (_divided == false)

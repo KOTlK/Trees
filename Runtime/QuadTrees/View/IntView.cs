@@ -16,13 +16,12 @@ namespace Trees.Runtime.QuadTrees.View
             Gizmos.color = PointColor;
             Handles.color = _textColor;
             
-            while (PointsQueue.Count > 0)
+            while (ElementsQueue.Count > 0)
             {
-                var point = PointsQueue.Dequeue();
-                var item = ItemsQueue.Dequeue();
+                var point = ElementsQueue.Dequeue();
 
-                Gizmos.DrawSphere(point, PointSize);
-                Handles.Label(point + new Vector3(0, _textOffset), item.ToString());
+                Gizmos.DrawSphere(point.Position, PointSize);
+                Handles.Label(point.Position + new Vector3(0, _textOffset), point.Value.ToString());
             }
 #endif
         }

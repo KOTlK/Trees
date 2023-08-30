@@ -34,7 +34,7 @@ namespace Trees.Examples.QuadTrees
 
         private void Awake()
         {
-            _quadTree = new QuadTree<Point>(4, new Rectangle(_startPosition, _size));
+            _quadTree = new QuadTree<Point>(new Rectangle(_startPosition, _size));
             InsertPoints(_pointsAmount);
         }
 
@@ -139,17 +139,17 @@ namespace Trees.Examples.QuadTrees
             
             //Rebuild quadTree
             QuadTreeRebuild.Begin();
-            _quadTree = new QuadTree<Point>(4, new Rectangle(_startPosition, _size));
+            _quadTree = new QuadTree<Point>(new Rectangle(_startPosition, _size));
 
             foreach (var point in _points)
             {
-                _quadTree.Insert(point.Position, point);
+                _quadTree.Insert(new TreeElement<Point>(point.Position, point));
             }
 
             QuadTreeRebuild.End();
 
             QuadTreeQuery.Begin();
-            IEnumerable<(Vector3, Point)> pointsInArea = new (Vector3, Point)[1];
+            IEnumerable<TreeElement<Point>> pointsInArea = new TreeElement<Point>[1];
             switch (_areaType)
             {
                 case AreaType.Circle:
@@ -164,9 +164,9 @@ namespace Trees.Examples.QuadTrees
             
             QuadTreeQuery.End();
 
-            foreach (var (point, _) in pointsInArea)
+            foreach (var element in pointsInArea)
             {
-                Debug.DrawLine(_areaPosition, point);
+                Debug.DrawLine(_areaPosition, element.Position);
             }
             
             if(_displayDebug)
