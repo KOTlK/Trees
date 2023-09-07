@@ -102,6 +102,13 @@ namespace Trees.Examples.QuadTrees
                         }
                     }
                     break;
+                case AreaType.Point:
+                    _areaRenderer.positionCount = 0;
+                    if (Input.GetKeyDown(KeyCode.Mouse0))
+                    {
+                        _movingArea = true;
+                    }
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -117,6 +124,11 @@ namespace Trees.Examples.QuadTrees
                 mousePosition.z = 0;
 
                 _areaPosition = mousePosition;
+            }
+            
+            if (_areaType == AreaType.Point)
+            {
+                Debug.DrawRay(_areaPosition, Vector3.up, Color.cyan);
             }
             
             //Move points
@@ -151,6 +163,10 @@ namespace Trees.Examples.QuadTrees
 
             QuadTreeQuery.Begin();
             IEnumerable<TreeElement<Point>> pointsInArea = new TreeElement<Point>[1];
+            var closestPoint = new TreeElement<Point>()
+            {
+                Position = Vector3.negativeInfinity
+            };
             switch (_areaType)
             {
                 case AreaType.Circle:
@@ -159,17 +175,27 @@ namespace Trees.Examples.QuadTrees
                 case AreaType.Rectangle:
                     pointsInArea = _quadTree.Query(rectangleArea);
                     break;
+                case AreaType.Point:
+                    _quadTree.Query(_areaPosition, ref closestPoint);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
             
             QuadTreeQuery.End();
 
-            foreach (var element in pointsInArea)
+            if (_areaType == AreaType.Point)
             {
-                Debug.DrawLine(_areaPosition, element.Position);
+                Debug.DrawLine(_areaPosition, closestPoint.Position);
             }
-            
+            else
+            {
+                foreach (var element in pointsInArea)
+                {
+                    Debug.DrawLine(_areaPosition, element.Position);
+                }
+            }
+
             if(_displayDebug)
                 _quadTree.Visualize(_view);
 

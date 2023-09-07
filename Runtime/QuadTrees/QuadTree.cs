@@ -112,6 +112,34 @@ namespace Trees.Runtime.QuadTrees
             return total;
         }
 
+        public bool Query(Vector3 point, ref TreeElement<T> closest, float previousDistance = float.MaxValue)
+        {
+            if (_rectangle.Contains(point) == false)
+                return false;
+
+            for (var i = 0; i < _count; i++)
+            {
+                var distance = (_elements[i].Position - point).sqrMagnitude;
+                if (distance < previousDistance)
+                {
+                    previousDistance = distance;
+                    closest = _elements[i];
+                }
+            }
+
+            if (_divided == false)
+            {
+                return true;
+            }
+
+            foreach (var child in _child)
+            {
+                child.Query(point, ref closest, previousDistance);
+            }
+
+            return true;
+        }
+
         public void Divide()
         {
             if (_divided)

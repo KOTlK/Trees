@@ -3,6 +3,7 @@
     public enum AreaType
     {
         Circle,
-        Rectangle
+        Rectangle,
+        Point
     }
 }

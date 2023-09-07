@@ -58,12 +58,12 @@ namespace Trees.Examples.OcTrees
             }
 
             var rangePosition = _range.position;
-            var sphereRange = new Sphere(rangePosition, _rangeRadius);
-            var aabbRange = new AABB(rangePosition, _rangeSize);
 
             switch (_areaType)
             {
                 case AreaType.Circle:
+                    var sphereRange = new Sphere(rangePosition, _rangeRadius);
+                    
                     var points = _ocTree.Query(sphereRange);
 
                     foreach (var point in points)
@@ -72,12 +72,20 @@ namespace Trees.Examples.OcTrees
                     }
                     break;
                 case AreaType.Rectangle:
+                    var aabbRange = new AABB(rangePosition, _rangeSize);
                     var pointsInRange = _ocTree.Query(aabbRange);
 
                     foreach (var point in pointsInRange)
                     {
                         Debug.DrawLine(rangePosition, point.Position, Color.red);
                     }
+                    break;
+                case AreaType.Point:
+                    var closestPoint = new TreeElement<Point>();
+
+                    _ocTree.Query(rangePosition, ref closestPoint);
+
+                    Debug.DrawLine(rangePosition, closestPoint.Position, Color.red);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -157,6 +165,9 @@ namespace Trees.Examples.OcTrees
                     Gizmos.DrawLine(point2, point4);
                     Gizmos.DrawLine(point3, point4);
                     Gizmos.DrawLine(point3, point5);
+                    break;
+                case AreaType.Point:
+                    Gizmos.DrawSphere(_range.position, 0.1f);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

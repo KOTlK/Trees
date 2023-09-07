@@ -285,7 +285,7 @@ MonoBehaviour:
   _range: {fileID: 283858184}
   _rangeRadius: 5
   _rangeSize: {x: 20, y: 20, z: 20}
-  _areaType: 0
+  _areaType: 2
 --- !u!114 &1798158325
 MonoBehaviour:
   m_ObjectHideFlags: 0

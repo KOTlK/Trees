@@ -120,5 +120,30 @@ namespace Trees.Tests
             Assert.True(points[0].Position == new Vector3(10, 0));
             Assert.True(points[1].Position == new Vector3(-10, 0));
         }
+
+        [Test]
+        public void FindClosestPoint()
+        {
+            var range = new Vector3(100f, 100f);
+            var quadTree = new QuadTree<int>(
+                new Rectangle(
+                    new Vector3(0, 0), 
+                    range
+                ),
+                4
+            );
+
+            quadTree.Insert(new TreeElement<int>(new Vector3(10, 0), 0));
+            quadTree.Insert(new TreeElement<int>(new Vector3(15, 0), 1));
+            quadTree.Insert(new TreeElement<int>(new Vector3(20, 0), 2));
+            quadTree.Insert(new TreeElement<int>(new Vector3(-10, 0), 3));
+
+            var closest = new TreeElement<int>();
+
+            var closestFound = quadTree.Query(Vector3.zero, ref closest);
+
+            Assert.True(closestFound);
+            Assert.True(closest.Value == 0);
+        }
     }
 }
