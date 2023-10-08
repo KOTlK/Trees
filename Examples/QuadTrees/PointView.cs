@@ -13,12 +13,12 @@ namespace Trees.Examples.QuadTrees
             
             while (ElementsQueue.Count > 0)
             {
-                var point = ElementsQueue.Dequeue();
+                var (position, point) = ElementsQueue.Dequeue();
 
                 Gizmos.color = PointColor;
                 Gizmos.DrawSphere(point.Position, PointSize);
                 Gizmos.color = _directionColor;
-                Gizmos.DrawRay(point.Position, point.Value.Direction);
+                Gizmos.DrawRay(point.Position, point.Direction);
             }
         }
     }

@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Trees.Runtime.QuadTrees.View;
 using UnityEngine;
 
 namespace Trees.Runtime.QuadTrees
 {
-    public struct QuadTree<T>
+    public struct StaticQuadTree<T>
     {
         private readonly int _capacity;
         private readonly TreeElement<T>[] _elements;
-        private readonly QuadTree<T>[] _child;
+        private readonly StaticQuadTree<T>[] _child;
 
         private Rectangle _rectangle;
         private bool _divided;
@@ -19,14 +20,22 @@ namespace Trees.Runtime.QuadTrees
         private const int SW = 2;
         private const int SE = 3;
 
-        public QuadTree(Rectangle rectangle, int capacity = 4)
+        public StaticQuadTree(Rectangle rectangle, int capacity = 4)
         {
             _capacity = capacity;
             _rectangle = rectangle;
             _count = 0;
-            _child = new QuadTree<T>[4];
+            _child = new StaticQuadTree<T>[4];
             _divided = false;
             _elements = new TreeElement<T>[_capacity];
+        }
+        
+        public int Count()
+        {
+            if (_divided == false)
+                return _count;
+
+            return _count + _child.Sum(child => child.Count());
         }
 
         public bool Insert(TreeElement<T> element)
@@ -145,19 +154,19 @@ namespace Trees.Runtime.QuadTrees
             if (_divided)
                 return;
 
-            _child[NW] = new QuadTree<T>(new Rectangle(
+            _child[NW] = new StaticQuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f),
                 _capacity);
-            _child[NE] = new QuadTree<T>(new Rectangle(
+            _child[NE] = new StaticQuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y + _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f),
                 _capacity);
-            _child[SW] = new QuadTree<T>(new Rectangle(
+            _child[SW] = new StaticQuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x - _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f),
                 _capacity);
-            _child[SE] = new QuadTree<T>(new Rectangle(
+            _child[SE] = new StaticQuadTree<T>(new Rectangle(
                 new Vector3(_rectangle.Position.x + _rectangle.Size.x * 0.25f, _rectangle.Position.y - _rectangle.Size.y * 0.25f),
                 _rectangle.Size * 0.5f),
                 _capacity);
@@ -168,9 +177,10 @@ namespace Trees.Runtime.QuadTrees
         public void Visualize(IQuadTreeView<T> view)
         {
             view.DrawBounds(_rectangle);
+            view.DrawElementsCount(Count());
             for(var i = 0; i < _count; i++)
             {
-                view.DrawElement(_elements[i]);
+                view.DrawElement(_elements[i].Position, _elements[i].Value);
             }
 
             if (_divided == false)

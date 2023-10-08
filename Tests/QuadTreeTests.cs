@@ -13,7 +13,7 @@ namespace Trees.Tests
         public void InsertPointsInRange()
         {
             var range = new Vector3(100f, 100f);
-            var quadTree = new QuadTree<int>(
+            var quadTree = new StaticQuadTree<int>(
                 new Rectangle(
                     new Vector3(0, 0), 
                     range
@@ -43,7 +43,7 @@ namespace Trees.Tests
         public void DivideTree()
         {
             var range = new Vector3(100f, 100f);
-            var quadTree = new QuadTree<int>(
+            var quadTree = new StaticQuadTree<int>(
                 new Rectangle(
                     new Vector3(0, 0), 
                     range
@@ -71,7 +71,7 @@ namespace Trees.Tests
         public void FindPointsInRectangle()
         {
             var range = new Vector3(100f, 100f);
-            var quadTree = new QuadTree<int>(
+            var quadTree = new StaticQuadTree<int>(
                 new Rectangle(
                     new Vector3(0, 0), 
                     range
@@ -99,7 +99,7 @@ namespace Trees.Tests
         public void FindPointsInCircle()
         {
             var range = new Vector3(100f, 100f);
-            var quadTree = new QuadTree<int>(
+            var quadTree = new StaticQuadTree<int>(
                 new Rectangle(
                     new Vector3(0, 0), 
                     range
@@ -125,7 +125,7 @@ namespace Trees.Tests
         public void FindClosestPoint()
         {
             var range = new Vector3(100f, 100f);
-            var quadTree = new QuadTree<int>(
+            var quadTree = new StaticQuadTree<int>(
                 new Rectangle(
                     new Vector3(0, 0), 
                     range

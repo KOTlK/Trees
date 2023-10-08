@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using TMPro;
-using Trees.Runtime;
 using Trees.Runtime.QuadTrees;
-using Unity.Profiling;
 using UnityEngine;
 
 namespace Trees.Examples.QuadTrees
 {
-    public class Field : MonoBehaviour
+    public class DynamicField : MonoBehaviour
     {
         [SerializeField] private TMP_Text _debugInfo;
         [SerializeField] private Vector3 _startPosition = Vector3.zero;
@@ -23,22 +21,19 @@ namespace Trees.Examples.QuadTrees
         [SerializeField] private int _circleSegmentsCount = 30;
         [SerializeField] private LineRenderer _areaRenderer;
         [SerializeField] private bool _displayDebug = true;
-
+        
+        private DynamicQuadTree<Point> _quadTree;
         private Vector3 _areaPosition;
         private bool _movingArea = false;
-        //private QuadTree<Point> _quadTree;
         private readonly System.Random _random = new();
-        private Point[] _points;
-
-        private static readonly ProfilerMarker QuadTreeQuery = new(nameof(QuadTreeQuery));
-        private static readonly ProfilerMarker QuadTreeRebuild = new(nameof(QuadTreeRebuild));
-
+        private TreeItem<Point>[] _points;
+        
         private void Awake()
         {
-            //_quadTree = new QuadTree<Point>(new Rectangle(_startPosition, _size));
+            _quadTree = new DynamicQuadTree<Point>(new Rectangle(_startPosition, _size));
             InsertPoints(_pointsAmount);
         }
-
+        
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -132,41 +127,30 @@ namespace Trees.Examples.QuadTrees
             }
             
             //Move points
-            var max = (_startPosition + _size * 0.5f) - Vector3.one;
-            var min = (_startPosition - _size * 0.5f) + Vector3.one;
+            var max = (_startPosition + _size * 0.5f) - Vector3.one * 5f;
+            var min = (_startPosition - _size * 0.5f) + Vector3.one * 5f;
 
             for (var i = 0; i < _points.Length; i++)
             {
-                var position = _points[i].Position;
+                var position = _points[i].Value.Position;
 
                 if (position.x <= min.x ||
                     position.x >= max.x ||
                     position.y <= min.y ||
                     position.y >= max.y)
                 {
-                    _points[i].Direction *= -1;
+                    _points[i].Value.Direction *= -1;
                 }
 
-                _points[i].Position += _points[i].Direction * (_pointsSpeed * Time.deltaTime);
+                _points[i].Value.Position += _points[i].Value.Direction * (_pointsSpeed * Time.deltaTime);
+                _points[i].Position = _points[i].Value.Position;
             }
+
+            _quadTree.Update();
             
-            //Rebuild quadTree
-            QuadTreeRebuild.Begin();
-            var _quadTree = new StaticQuadTree<Point>(new Rectangle(_startPosition, _size));
-
-            foreach (var point in _points)
-            {
-                _quadTree.Insert(new TreeElement<Point>(point.Position, point));
-            }
-
-            QuadTreeRebuild.End();
-
-            QuadTreeQuery.Begin();
-            IEnumerable<TreeElement<Point>> pointsInArea = new TreeElement<Point>[1];
-            var closestPoint = new TreeElement<Point>()
-            {
-                Position = Vector3.negativeInfinity
-            };
+            IEnumerable<TreeItem<Point>> pointsInArea = new TreeItem<Point>[1];
+            var closestPoint = new TreeItem<Point>(new Point(), Vector3.negativeInfinity);
+            
             switch (_areaType)
             {
                 case AreaType.Circle:
@@ -181,8 +165,6 @@ namespace Trees.Examples.QuadTrees
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
-            QuadTreeQuery.End();
 
             if (_areaType == AreaType.Point)
             {
@@ -201,14 +183,15 @@ namespace Trees.Examples.QuadTrees
 
             _debugInfo.text = $"Items Count: {_count.ToString()}\n" +
                               $"Frame Time: {Time.deltaTime.ToString()}\n" +
-                              $"FPS: {(1 / Time.unscaledDeltaTime).ToString()}";
+                              $"FPS: {(1 / Time.unscaledDeltaTime).ToString()}" +
+                              $"Items Inside QT: {_quadTree.Count().ToString()}";
         }
-
+        
         private void InsertPoints(int amount)
         {
             if (_points == null)
             {
-                _points = new Point[amount];
+                _points = new TreeItem<Point>[amount];
             }
             else
             {
@@ -216,8 +199,8 @@ namespace Trees.Examples.QuadTrees
             }
 
 
-            var min = _startPosition - _size * 0.5f;
-            var max = _startPosition + _size * 0.5f;
+            var min = _startPosition - _size * 0.5f + Vector3.one * 5f;
+            var max = _startPosition + _size * 0.5f - Vector3.one * 5f;
             
             for (var i = 0; i < amount; i++)
             {
@@ -232,7 +215,8 @@ namespace Trees.Examples.QuadTrees
                     Direction = direction
                 };
 
-                _points[_count] = point;
+                _points[_count] = new TreeItem<Point>(point, point.Position);
+                _quadTree.Insert(_points[_count]);
                 _count++;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Trees.Runtime.QuadTrees.View
@@ -10,16 +11,22 @@ namespace Trees.Runtime.QuadTrees.View
         [SerializeField] protected float PointSize = 0.5f;
 
         protected readonly Queue<Rectangle> BoundsQueue = new();
-        protected readonly Queue<TreeElement<T>> ElementsQueue = new();
+        protected readonly Queue<(Vector3, T)> ElementsQueue = new();
+        protected readonly Queue<int> ElementsCount = new();
 
         public virtual void DrawBounds(Rectangle rectangle)
         {
             BoundsQueue.Enqueue(rectangle);
         }
 
-        public void DrawElement(TreeElement<T> element)
+        public void DrawElement(Vector3 position, T element)
         {
-            ElementsQueue.Enqueue(element);
+            ElementsQueue.Enqueue((position, element));
+        }
+
+        public void DrawElementsCount(int count)
+        {
+            ElementsCount.Enqueue(count);
         }
 
         protected void DisplayBounds()
@@ -29,6 +36,7 @@ namespace Trees.Runtime.QuadTrees.View
             while (BoundsQueue.Count > 0)
             {
                 var bounds = BoundsQueue.Dequeue();
+                var count = ElementsCount.Dequeue();
 
                 var halfExtents = bounds.HalfExtents;
 
@@ -41,18 +49,10 @@ namespace Trees.Runtime.QuadTrees.View
                 Gizmos.DrawLine(point1, point2);
                 Gizmos.DrawLine(point2, point3);
                 Gizmos.DrawLine(point3, point0);
-            }
-        }
-
-        protected void DisplayPoints()
-        {
-            Gizmos.color = PointColor;
-            
-            while (ElementsQueue.Count > 0)
-            {
-                var point = ElementsQueue.Dequeue();
-
-                Gizmos.DrawSphere(point.Position, PointSize);
+#if UNITY_EDITOR
+                Handles.Label(bounds.Position, count.ToString());
+#endif
+                
             }
         }
 
